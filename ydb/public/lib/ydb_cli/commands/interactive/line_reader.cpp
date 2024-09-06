@@ -1,5 +1,6 @@
 #include "line_reader.h"
 #include "yql_highlight.h"
+#include "yql_suggestion_engine.h"
 
 #include <util/generic/string.h>
 #include <util/system/file.h>
@@ -49,6 +50,7 @@ private:
     std::string Prompt;
     std::string HistoryFilePath;
     TFileHandle HistoryFileHandle;
+    YQLSuggestionEngine SuggestionEngine;
     replxx::Replxx Rx;
 };
 
@@ -59,10 +61,22 @@ TLineReader::TLineReader(std::string prompt, std::string historyFilePath)
 {
     Rx.install_window_change_handler();
 
+    auto completion_callback = [this](const std::string & prefix, size_t) {
+        const auto color = replxx::Replxx::Color::DEFAULT;
+        TVector<TString> candidates = SuggestionEngine.Candidates(prefix);
+
+        replxx::Replxx::completions_t completions;
+        for (auto& candidate : candidates) {
+            completions.emplace_back(std::move(candidate), color);
+        }
+        return completions;
+    };
+
     auto highlighter_callback = [](const auto& text, auto& colors) {
         return YQLHighlight(YQLHighlight::ColorSchema::Monaco()).Apply(text, colors);
     };
 
+    Rx.set_completion_callback(completion_callback);
     Rx.set_highlighter_callback(highlighter_callback);
     Rx.enable_bracketed_paste();
     Rx.set_unique_history(true);
