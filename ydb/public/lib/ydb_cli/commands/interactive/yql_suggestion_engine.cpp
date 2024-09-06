@@ -8,10 +8,15 @@ namespace NYdb {
 
         namespace {
 
+            bool IsTokenBoundary(char symbol) {
+                static const std::string boundaries = "(.:";
+                return IsSpace(symbol) || boundaries.contains(symbol);
+            }
+
             size_t LastTokenBegin(TStringBuf text) {
                 const auto length = static_cast<int64_t>(text.size());
                 for (int64_t i = length - 1; 0 <= i; --i) {
-                    if (IsSpace(text[i])) {
+                    if (IsTokenBoundary(text[i])) {
                         return i + 1;
                     }
                 }
