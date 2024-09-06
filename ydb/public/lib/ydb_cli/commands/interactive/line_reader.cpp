@@ -37,7 +37,7 @@ std::optional<FileHandlerLockGuard> LockFile(TFileHandle & fileHandle) {
 class TLineReader : public ILineReader
 {
 public:
-    TLineReader(std::string prompt, std::string historyFilePath, Suggest suggestions = {});
+    TLineReader(std::string prompt, std::string historyFilePath);
 
     std::optional<std::string> ReadLine() override;
 
@@ -49,55 +49,20 @@ private:
     std::string Prompt;
     std::string HistoryFilePath;
     TFileHandle HistoryFileHandle;
-    Suggest Suggestions;
     replxx::Replxx Rx;
 };
 
-TLineReader::TLineReader(std::string prompt, std::string historyFilePath, Suggest suggestions)
+TLineReader::TLineReader(std::string prompt, std::string historyFilePath)
     : Prompt(std::move(prompt))
     , HistoryFilePath(std::move(historyFilePath))
     , HistoryFileHandle(HistoryFilePath.c_str(), EOpenModeFlag::OpenAlways | EOpenModeFlag::RdWr | EOpenModeFlag::AW | EOpenModeFlag::ARUser | EOpenModeFlag::ARGroup)
-    , Suggestions(std::move(suggestions))
 {
     Rx.install_window_change_handler();
-
-    auto completion_callback = [this](const std::string & prefix, size_t) {
-        std::string lastToken;
-        for (i64 i = static_cast<i64>(prefix.size()) - 1; i >= 0; --i) {
-            if (std::isspace(prefix[i])) {
-                break;
-            }
-
-            lastToken.push_back(prefix[i]);
-        }
-
-        std::reverse(lastToken.begin(), lastToken.end());
-
-        replxx::Replxx::completions_t completions;
-        if (lastToken.empty()) {
-            return completions;
-        }
-
-        for (auto & Word : Suggestions.Words) {
-            if (Word.size() < lastToken.size()) {
-                continue;
-            }
-
-            if (Word.compare(0, lastToken.size(), lastToken) != 0) {
-                continue;
-            }
-
-            completions.push_back(Word);
-        }
-
-        return completions;
-    };
 
     auto highlighter_callback = [](const auto& text, auto& colors) {
         return YQLHighlight(YQLHighlight::ColorSchema::Monaco()).Apply(text, colors);
     };
 
-    Rx.set_completion_callback(completion_callback);
     Rx.set_highlighter_callback(highlighter_callback);
     Rx.enable_bracketed_paste();
     Rx.set_unique_history(true);
@@ -159,8 +124,8 @@ void TLineReader::AddToHistory(const std::string & line) {
 
 }
 
-std::unique_ptr<ILineReader> CreateLineReader(std::string prompt, std::string historyFilePath, Suggest suggestions) {
-    return std::make_unique<TLineReader>(std::move(prompt), std::move(historyFilePath), std::move(suggestions));
+std::unique_ptr<ILineReader> CreateLineReader(std::string prompt, std::string historyFilePath) {
+    return std::make_unique<TLineReader>(std::move(prompt), std::move(historyFilePath));
 }
 
 }
