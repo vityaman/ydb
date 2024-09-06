@@ -27,7 +27,7 @@ namespace NYdb {
         private:
             void Reset(TStringBuf prefix);
 
-            TString PostProcessed(size_t token) const;
+            TString DisplayName(size_t token) const;
 
         private:
             antlr4::ANTLRInputStream Chars;

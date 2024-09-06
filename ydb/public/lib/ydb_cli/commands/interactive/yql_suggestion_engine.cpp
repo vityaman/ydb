@@ -62,7 +62,7 @@ namespace NYdb {
             TVector<TString> result;
 
             for (const auto& [token, follow] : c3Candidates.tokens) {
-                TString candidate = PostProcessed(token);
+                TString candidate = DisplayName(token);
 
                 const bool isSuitable = //
                     lastToken.Size() < candidate.Size() &&
@@ -84,7 +84,7 @@ namespace NYdb {
             Tokens.fill();
         }
 
-        TString YQLSuggestionEngine::PostProcessed(size_t token) const {
+        TString YQLSuggestionEngine::DisplayName(size_t token) const {
             const auto& vocabulary = Lexer.getVocabulary();
 
             TString display = vocabulary.getDisplayName(token);
