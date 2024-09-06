@@ -37,6 +37,9 @@ namespace NYdb {
             , Parser(&Tokens)
             , C3Engine(&Parser)
         {
+            Lexer.removeErrorListeners();
+            Parser.removeErrorListeners();
+
             const size_t min = antlr4::Token::MIN_USER_TOKEN_TYPE;
             const size_t max = Lexer.getVocabulary().getMaxTokenType();
             for (size_t token = min; token < max; ++token) {
