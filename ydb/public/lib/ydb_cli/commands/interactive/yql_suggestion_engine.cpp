@@ -1,6 +1,7 @@
 #include "yql_suggestion_engine.h"
 
 #include <util/charset/unidata.h>
+#include <ydb/public/lib/ydb_cli/commands/interactive/yql_syntax.h>
 
 namespace NYdb {
     namespace NConsoleClient {
@@ -36,6 +37,15 @@ namespace NYdb {
             , Parser(&Tokens)
             , C3Engine(&Parser)
         {
+            const size_t min = antlr4::Token::MIN_USER_TOKEN_TYPE;
+            const size_t max = Lexer.getVocabulary().getMaxTokenType();
+            for (size_t token = min; token < max; ++token) {
+                bool isVisible = IsYQLKeyword(token) || token == TOKEN(ASTERISK);
+                if (!isVisible) {
+                    C3Engine.ignoredTokens.emplace(token);
+                }
+            }
+            C3Engine.ignoredTokens.emplace(antlr4::Token::EOF);
         }
 
         TVector<TString> YQLSuggestionEngine::Candidates(TStringBuf prefix) {

@@ -5,6 +5,7 @@ SRCS(
     line_reader.cpp
     yql_highlight.cpp
     yql_suggestion_engine.cpp
+    yql_syntax.cpp
 )
 
 PEERDIR(
