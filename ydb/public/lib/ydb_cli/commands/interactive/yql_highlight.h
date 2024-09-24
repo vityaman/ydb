@@ -8,6 +8,8 @@
 
 #include <ydb/library/yql/parser/proto_ast/gen/v1_antlr4/SQLv1Antlr4Lexer.h>
 
+#include <util/generic/fwd.h>
+
 #include <regex>
 
 namespace NYdb {
@@ -16,6 +18,8 @@ namespace NYdb {
         class YQLHighlight final {
         public:
             using Color = replxx::Replxx::Color;
+
+            // Colors are provided as for a UTF32 string
             using Colors = replxx::Replxx::colors_t;
 
             struct ColorSchema {
@@ -40,10 +44,10 @@ namespace NYdb {
             explicit YQLHighlight(ColorSchema color);
 
         public:
-            void Apply(std::string_view query, Colors& colors);
+            void Apply(TStringBuf queryUtf8, Colors& colors);
 
         private:
-            void Reset(std::string_view query);
+            void Reset(TStringBuf queryUtf8);
 
             YQLHighlight::Color ColorOf(const antlr4::Token* token);
             bool IsKeyword(const antlr4::Token* token) const;

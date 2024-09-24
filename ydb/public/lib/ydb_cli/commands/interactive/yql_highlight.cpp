@@ -5,6 +5,8 @@
 
 #include <ydb/library/yql/parser/proto_ast/gen/v1_antlr4/SQLv1Antlr4Lexer.h>
 
+#include <util/generic/strbuf.h>
+
 #define TOKEN(NAME) SQLv1Antlr4Lexer::TOKEN_##NAME
 
 namespace NYdb {
@@ -118,8 +120,8 @@ namespace NYdb {
             Lexer.removeErrorListeners();
         }
 
-        void YQLHighlight::Apply(std::string_view query, Colors& colors) {
-            Reset(query);
+        void YQLHighlight::Apply(TStringBuf queryUtf8, Colors& colors) {
+            Reset(queryUtf8);
 
             for (std::size_t i = 0; i < Tokens.size(); ++i) {
                 const auto* token = Tokens.get(i);
@@ -133,8 +135,8 @@ namespace NYdb {
             }
         }
 
-        void YQLHighlight::Reset(std::string_view query) {
-            Chars.load(query.data(), query.length());
+        void YQLHighlight::Reset(TStringBuf queryUtf8) {
+            Chars.load(queryUtf8.data(), queryUtf8.length());
             Lexer.reset();
             Tokens.setTokenSource(&Lexer);
 
