@@ -97,7 +97,7 @@ jobs:
       PLATFORM: ${{ matrix.platform }}
       VERSION: ${{ needs.prepare.outputs.version }}
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 120
+    timeout-minutes: 200
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -117,8 +117,6 @@ jobs:
             -DYQL_LANGUAGE_SERVER_VERSION="$VERSION" \
             --output="$output" \
             --stat \
-            --bazel-remote-store \
-            --bazel-remote-base-uri="http://build-cache.dev.ytsaurus.tech" \
             --ignore-recurses \
             yql/essentials/tools/yql_language_server
 
