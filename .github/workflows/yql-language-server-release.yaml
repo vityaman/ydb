@@ -198,8 +198,6 @@ jobs:
             -DYQL_LANGUAGE_SERVER_VERSION=%VERSION% ^
             --output="%RUNNER_TEMP%\yql-language-server-%PLATFORM%" ^
             --stat ^
-            --bazel-remote-store ^
-            --bazel-remote-base-uri=http://build-cache.dev.ytsaurus.tech ^
             --ignore-recurses ^
             --c-compiler "%COMPILER%" ^
             --cxx-compiler "%COMPILER%" ^
